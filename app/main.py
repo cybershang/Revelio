@@ -2,6 +2,8 @@ from app.routers.assess  import content_assessment_router
 from fastapi import FastAPI, APIRouter
 from fastapi.responses import JSONResponse
 # from fastapi.middleware.cors import CORSMiddleware CORS
+import logging
+logger = logging.getLogger("uvicorn")
 
 
 app = FastAPI()

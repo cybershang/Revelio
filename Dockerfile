@@ -21,6 +21,9 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 COPY ./app /code/app
 
+RUN mkdir -p /data/raw /data/process  
+RUN chmod -R 755 /data  
+
 EXPOSE 8000
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

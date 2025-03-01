@@ -1,36 +1,55 @@
+from ..utils.video_processor import framming
 from fastapi.responses import JSONResponse
-import json
 import uuid
 import logging
-import asyncio
-from fastapi import APIRouter, Request, UploadFile, File
+from volcenginesdkarkruntime import Ark
+from fastapi import APIRouter, Request, UploadFile, File, Depends
 from fastapi.responses import JSONResponse
 from pathlib import Path
-import os
-# from zhipuai import ZhipuAI
+import logging
+from app.utils.tos import upload_frames
+from app.recognition.llm import image2text,get_ark_client
+
+logger = logging.getLogger("uvicorn")
+
 
 content_assessment_router = APIRouter()
-UPLOAD_DIR = '/data'
+DATA_DIR = '/data'
+UPLOAD_DIR = 'raw'
+PROCESS_DIR = 'process'
 
 
 @content_assessment_router.api_route(
     "/assess", methods=["POST"]
 )
-async def assess(request: Request, file: UploadFile = File(None)):
+async def assess(request: Request, file: UploadFile = File(None), client: Ark = Depends(get_ark_client)):
     """content assessment"""
-    if file:
+    if not file:
+        return JSONResponse(content={'message': 'file upload failed'}, status_code=500)
+    else:
         file_uuid = uuid.uuid4().__str__()
 
-        dir_path = Path(UPLOAD_DIR) / Path(file_uuid)
-        dir_path.mkdir()
-        file_path = dir_path / Path(file.filename)
+        stored_dir_path = Path(DATA_DIR) / Path(UPLOAD_DIR) / Path(file_uuid)
+        stored_dir_path.mkdir()
+        file_path = stored_dir_path / Path(file.filename)
 
         with open(file_path, "wb") as f:
             contents = await file.read()
             f.write(contents)
-        return JSONResponse(content={'message': 'upload success', 'path': file_path.__str__()}, status_code=200)
-    else:
-        return JSONResponse(content={'message': 'file upload failed'}, status_code=500)
+
+        frame_dir = Path(DATA_DIR) / Path(PROCESS_DIR) / Path(file_uuid)
+        frame_dir.mkdir()
+        output_pattern = frame_dir / Path('%04d.png')
+
+        file_list = framming(1, file_path, output_pattern)
+        name_url = upload_frames(file_uuid, file_list)
+
+        # Detect image with LLM
+        serial_text = {}
+        for name, url in name_url.items():
+            serial_text[name] = image2text(url, client)
+
+        return JSONResponse(content=serial_text, status_code=200)
 
     # identifying by AI
     # risk = True
