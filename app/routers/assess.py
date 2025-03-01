@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 from pathlib import Path
 import logging
 from app.utils.tos import upload_frames
-from app.recognition.llm import image2text,get_ark_client
+from app.recognition.llm import image2text,get_ark_client,check_violence
 
 logger = logging.getLogger("uvicorn")
 
@@ -45,14 +45,9 @@ async def assess(request: Request, file: UploadFile = File(None), client: Ark = 
         name_url = upload_frames(file_uuid, file_list)
 
         # Detect image with LLM
-        serial_text = {}
+        serial_result = {}
         for name, url in name_url.items():
-            serial_text[name] = image2text(url, client)
+            # serial_text[name] = image2text(url, client)
+            serial_result[name] = check_violence(url, client)
 
-        return JSONResponse(content=serial_text, status_code=200)
-
-    # identifying by AI
-    # risk = True
-    # if risk:
-    #     return JSONResponse(content={'risk': True, 'category': 'Violence'}, status_code=200)
-    # return JSONResponse(content="", status_code=200)
+        return JSONResponse(content=serial_result, status_code=200)
