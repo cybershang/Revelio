@@ -13,7 +13,7 @@ A content moderation system powered by AI.
 
 Make request to assessment end point: <http://localhost:8000/api/assess>.
 
-Test with curl: `curl -X 'POST' http://localhost:8000/api/assess  -H 'Content-Type: multipart/form-data' -F 'file=@WRITE_FILE_PATH_HERE'`
+Test with curl: `curl -H 'API_KEY: API_KEY_OF_REVELIO' -X 'POST' http://localhost:8000/api/assess  -H 'Content-Type: multipart/form-data' -F 'file=@WRITE_FILE_PATH_HERE'`
 
 ## Architecture
 
