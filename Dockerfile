@@ -19,7 +19,6 @@ RUN apt update && apt install -y ffmpeg
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 COPY ./app /code/app
-COPY ./.env /code/app/.env
 
 RUN mkdir -p /data/raw /data/process  
 RUN chmod -R 755 /data  
