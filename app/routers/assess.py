@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 import uuid
 import logging
 from volcenginesdkarkruntime import Ark
-from fastapi import APIRouter, Request, UploadFile, File, Depends
+from fastapi import APIRouter, Request, UploadFile, File, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from pathlib import Path
 import logging
@@ -24,6 +24,9 @@ PROCESS_DIR = 'process'
 )
 async def assess(request: Request, file: UploadFile = File(None), client: Ark = Depends(get_ark_client)):
     """content assessment"""
+    if request.headers.get('API_KEY') != os.getenv('REVELIO_API_KEY'):
+        raise HTTPException(status_code=401, detail="Invalid or missing API Key")
+        
     if not file:
         return JSONResponse(content={'message': 'file upload failed'}, status_code=500)
     else:
