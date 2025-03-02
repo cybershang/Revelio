@@ -11,7 +11,7 @@ def get_ark_client():
     )
 
 
-PROMPT_2 = '''请严格按照 JSON 格式返回检测结果，禁止任何换行或格式化处理。判断场景中是否存在暴力行为并返回**英文**结果：{"is_violence": (true if violence exist, else false),"category":"violence category if violence exist, else empty "}'''
+PROMPT_2 = '''请严格按照 JSON 格式返回检测结果，禁止任何换行或格式化处理。判断场景中是否存在暴力行为并返回结果：{"is_violence": (true if violence exist, else false),"category":"violence category if violence exist, else empty "}'''
 
 
 def image2text(frame_url: str, client: Ark) -> str:
