@@ -1,5 +1,3 @@
-FROM mcr.microsoft.com/devcontainers/python:1-3.11-bullseye
-
 # ENV PYTHONUNBUFFERED 1
 
 # [Optional] If your requirements rarely change, uncomment this section to add them to the image.
@@ -11,15 +9,17 @@ FROM mcr.microsoft.com/devcontainers/python:1-3.11-bullseye
 # RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 #     && apt-get -y install --no-install-recommends <your-package-list-here>
 
-FROM python:3.11
+FROM python:3.12
 
 WORKDIR /code
 
 COPY ./requirements.txt /code/requirements.txt
 
+RUN apt update && apt install -y ffmpeg
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 COPY ./app /code/app
+COPY ./.env /code/app/.env
 
 RUN mkdir -p /data/raw /data/process  
 RUN chmod -R 755 /data  
