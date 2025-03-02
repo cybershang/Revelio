@@ -1,4 +1,5 @@
 from ..utils.video_processor import framming
+import os
 from fastapi.responses import JSONResponse
 import uuid
 import logging
@@ -24,8 +25,10 @@ PROCESS_DIR = 'process'
 )
 async def assess(request: Request, file: UploadFile = File(None), client: Ark = Depends(get_ark_client)):
     """content assessment"""
-    if request.headers.get('API_KEY') != os.getenv('REVELIO_API_KEY'):
-        raise HTTPException(status_code=401, detail="Invalid or missing API Key")
+    if 'API_KEY' not in request.headers:
+        raise HTTPException(status_code=401, detail="Missing API Key")
+    elif request.headers['API_KEY'] != os.getenv('REVELIO_API_KEY'):
+        raise HTTPException(status_code=401, detail="Invalid API Key")
         
     if not file:
         return JSONResponse(content={'message': 'file upload failed'}, status_code=500)
